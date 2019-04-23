@@ -55,10 +55,7 @@ server.express.use("/me", async (req, res, next) => {
 	if (token) {
 		const { userId } = verify(token, process.env.SECRET);
 
-		currentUser = await db.query.user(
-			{ where: { id: userId } },
-			`{id fullname email}`
-		);
+		currentUser = await db.query.user({ where: { id: userId } }, `{id fullname email}`);
 	}
 	return res.status(200).json({ currentUser });
 });
@@ -69,7 +66,11 @@ server.start(
 			credentials: true,
 			origin:
 				process.env.MODE === "prod"
-					? process.env.CLIENT_LIVE_ENDPOINT
+					? [
+							`http://${process.env.CLIENT_LIVE_ENDPOINT}`,
+							`https://${process.env.CLIENT_LIVE_ENDPOINT}`,
+							`www.${process.env.CLIENT_LIVE_ENDPOINT}`
+					  ]
 					: process.env.CLIENT_ENDPOINT
 		}
 	},
